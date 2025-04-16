@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Previsão - Praia do Almargem</title>
+  <style>
+    html, body, #windy {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+  </style>
+  <script src="https://api.windy.com/assets/libBoot.js"></script>
+</head>
+<body>
+  <div id="windy"></div>
+  <script>
+    const options = {
+      key: 'pk0UiNdDltr1aT2lZm9RUS7XgBXHx1sR', // A TUA API KEY
+      lat: 37.0745,
+      lon: -8.0947,
+      zoom: 10,
+      overlay: 'wind',
+      marker: true,
+      metric: 'metric',
+      detail: true,
+      detailLat: 37.0745,
+      detailLon: -8.0947
+    };
+
+    windyInit(options, function(windyAPI) {
+      const { picker, utils, store } = windyAPI;
+
+      picker.open({ lat: 37.0745, lon: -8.0947 });
+      picker.on('pickerOpened', () => {
+        console.log('Previsão ponto-a-ponto ativa');
+      });
+    });
+  </script>
+</body>
+</html>
