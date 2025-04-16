@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <title>Previsão Windy – Almargem</title>
+  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 0; }
+    #windy { width: 100%; height: 400px; }
+    #forecast { padding: 1em; background: #f7f7f7; }
+    #forecast h3 { margin-top: 0; }
+    #forecast ul { list-style: none; padding-left: 0; }
+  </style>
+</head>
+<body>
+
+  <h2 style="padding:1em;">Mapa & Previsão – Praia do Almargem</h2>
+
+  <!-- 1) Mapa interativo -->
+  <div id="windy"></div>
+
+  <!-- 2) Texto da previsão -->
+  <div id="forecast">
+    <h3>Carregando previsão…</h3>
+  </div>
+
+  <script>
+    const LAT = 37.0659, LON = -8.0829;
+    const API_KEY = 'Almargem';  // <-- substitui aqui
+
+    // Inicializa o mapa
+    windyInit({
+      key: API_KEY,
+      lat: LAT,
+      lon: LON,
+      zoom: 11,
+      overlay: 'wind' // camada inicial
+    }, windyAPI => {
+      // podes mudar para 'waves', 'rain', 'temperature', 'pressure'
+    });
+
+    // Carrega a previsão em texto
+    async function loadForecast() {
+      const url = `https://api.windy.com/api/point-forecast/v2?lat=${LAT}&lon=${LON}&model=gfs`;
+      const resp = await fetch(url, { headers: { 'x-windy-key': API_KEY } });
+      if (!resp.ok) {
+        document.getElementById('forecast').innerHTML = '<p>Erro ao carregar previsão.</p>';
+        return;
+      }
+      const data = await resp.json();
+      const next12 = data.hours.slice(0, 12);
+      const list = next12.map(h => {
+        const time = new Date(h.dt * 1000)
+          .toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+        return `<li>
+            <strong>${time}</strong> – 
+            Vento ${h.wind10m.speed.toFixed(1)} m/s, 
+            Ondas ${h.waveHeight.toFixed(1)} m, 
+            Temp. ${h.temperature.toFixed(1)} °C, 
+            Pressão ${h.pressure.msl.toFixed(0)} hPa, 
+            Chuva ${h.rain.toFixed(1)} mm
+          </li>`;
+      }).join('');
+      document.getElementById('forecast').innerHTML = `
+        <h3>Próximas 12 horas</h3>
+        <ul>${list}</ul>`;
+    }
+    loadForecast().catch(console.error);
+  </script>
+
+</body>
+</html>
